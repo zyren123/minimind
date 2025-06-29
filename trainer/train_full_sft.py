@@ -2,7 +2,9 @@ import os
 import sys
 
 __package__ = "trainer"
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(SCRIPT_DIR, '..'))
+sys.path.append(PROJECT_ROOT)
 
 import argparse
 import time
@@ -94,7 +96,7 @@ def train_epoch(epoch, wandb):
 
 
 def init_model(lm_config):
-    tokenizer = AutoTokenizer.from_pretrained('../model')
+    tokenizer = AutoTokenizer.from_pretrained(os.path.join(PROJECT_ROOT, 'model/'))
     model = MiniMindForCausalLM(lm_config)
     moe_path = '_moe' if lm_config.use_moe else ''
     ckp = f'{args.save_dir}/pretrain_{lm_config.hidden_size}{moe_path}.pth'
@@ -120,7 +122,7 @@ def init_distributed_mode():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="MiniMind Full SFT")
-    parser.add_argument("--out_dir", type=str, default="../out")
+    parser.add_argument("--out_dir", type=str, default=os.path.join(PROJECT_ROOT, "out"))
     parser.add_argument("--epochs", type=int, default=2)
     parser.add_argument("--batch_size", type=int, default=16)
     parser.add_argument("--learning_rate", type=float, default=5e-7)
@@ -140,7 +142,7 @@ if __name__ == "__main__":
     parser.add_argument('--num_hidden_layers', default=8, type=int)
     parser.add_argument('--max_seq_len', default=512, type=int)
     parser.add_argument('--use_moe', default=False, type=bool)
-    parser.add_argument("--data_path", type=str, default="../dataset/sft_mini_512.jsonl")
+    parser.add_argument("--data_path", type=str, default=os.path.join(PROJECT_ROOT, "dataset/sft_mini_512.jsonl"))
 
     args = parser.parse_args()
 
